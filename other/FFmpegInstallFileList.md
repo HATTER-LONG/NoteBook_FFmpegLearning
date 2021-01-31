@@ -1,5 +1,7 @@
 # FFmpeg Install file list
 
+```shell
+~/Tools/FFmpeg master* 3m 1s
 ❯ sudo make install
 INSTALL doc/ffmpeg.1
 INSTALL doc/ffprobe.1
@@ -50,52 +52,52 @@ INSTALL presets/libvpx-1080p.ffpreset
 INSTALL presets/libvpx-720p50_60.ffpreset
 INSTALL presets/libvpx-720p.ffpreset
 INSTALL doc/ffprobe.xsd
-INSTALL doc/examples/transcoding.c
-INSTALL doc/examples/vaapi_transcode.c
-INSTALL doc/examples/demuxing_decoding.c
-INSTALL doc/examples/filtering_video.c
 INSTALL doc/examples/muxing.c
+INSTALL doc/examples/demuxing_decoding.c
+INSTALL doc/examples/vaapi_transcode.c
+INSTALL doc/examples/filtering_video.c
 INSTALL doc/examples/encode_audio.c
+INSTALL doc/examples/remuxing.c
 INSTALL doc/examples/hw_decode.c
 INSTALL doc/examples/filtering_audio.c
 INSTALL doc/examples/http_multiclient.c
-INSTALL doc/examples/decode_video.c
 INSTALL doc/examples/resampling_audio.c
 INSTALL doc/examples/metadata.c
-INSTALL doc/examples/remuxing.c
+INSTALL doc/examples/transcode_aac.c
 INSTALL doc/examples/extract_mvs.c
 INSTALL doc/examples/avio_reading.c
 INSTALL doc/examples/vaapi_encode.c
 INSTALL doc/examples/qsvdec.c
+INSTALL doc/examples/decode_video.c
 INSTALL doc/examples/avio_list_dir.c
 INSTALL doc/examples/decode_audio.c
 INSTALL doc/examples/filter_audio.c
-INSTALL doc/examples/transcode_aac.c
+INSTALL doc/examples/transcoding.c
 INSTALL doc/examples/encode_video.c
 INSTALL doc/examples/scaling_video.c
 INSTALL doc/examples/README
 INSTALL doc/examples/Makefile
-INSTALL doc/examples/transcoding.c
-INSTALL doc/examples/vaapi_transcode.c
-INSTALL doc/examples/demuxing_decoding.c
-INSTALL doc/examples/filtering_video.c
 INSTALL doc/examples/muxing.c
+INSTALL doc/examples/demuxing_decoding.c
+INSTALL doc/examples/vaapi_transcode.c
+INSTALL doc/examples/filtering_video.c
 INSTALL doc/examples/encode_audio.c
+INSTALL doc/examples/remuxing.c
 INSTALL doc/examples/hw_decode.c
 INSTALL doc/examples/filtering_audio.c
 INSTALL doc/examples/http_multiclient.c
-INSTALL doc/examples/decode_video.c
 INSTALL doc/examples/resampling_audio.c
 INSTALL doc/examples/metadata.c
-INSTALL doc/examples/remuxing.c
+INSTALL doc/examples/transcode_aac.c
 INSTALL doc/examples/extract_mvs.c
 INSTALL doc/examples/avio_reading.c
 INSTALL doc/examples/vaapi_encode.c
 INSTALL doc/examples/qsvdec.c
+INSTALL doc/examples/decode_video.c
 INSTALL doc/examples/avio_list_dir.c
 INSTALL doc/examples/decode_audio.c
 INSTALL doc/examples/filter_audio.c
-INSTALL doc/examples/transcode_aac.c
+INSTALL doc/examples/transcoding.c
 INSTALL doc/examples/encode_video.c
 INSTALL doc/examples/scaling_video.c
 INSTALL doc/examples/README
@@ -104,6 +106,7 @@ INSTALL libavdevice/libavdevice.a
 INSTALL libavfilter/libavfilter.a
 INSTALL libavformat/libavformat.a
 INSTALL libavcodec/libavcodec.a
+INSTALL libpostproc/libpostproc.a
 INSTALL libswresample/libswresample.a
 INSTALL libswscale/libswscale.a
 INSTALL libavutil/libavutil.a
@@ -144,6 +147,9 @@ INSTALL libavcodec/videotoolbox.h
 INSTALL libavcodec/vorbis_parser.h
 INSTALL libavcodec/xvmc.h
 INSTALL libavcodec/libavcodec.pc
+INSTALL libpostproc/postprocess.h
+INSTALL libpostproc/version.h
+INSTALL libpostproc/libpostproc.pc
 INSTALL libswresample/swresample.h
 INSTALL libswresample/version.h
 INSTALL libswresample/libswresample.pc
@@ -238,3 +244,4 @@ INSTALL libavutil/lzo.h
 INSTALL libavutil/avconfig.h
 INSTALL libavutil/ffversion.h
 INSTALL libavutil/libavutil.pc
+```
