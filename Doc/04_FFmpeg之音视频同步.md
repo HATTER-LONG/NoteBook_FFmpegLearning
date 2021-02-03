@@ -9,12 +9,12 @@
 
 再上一个例子中，我们可以在这看到我们保留了一些帧：
 
-![frame 0](./img/hello_world_frames/frame0.png)
-![frame 1](./img/hello_world_frames/frame1.png)
-![frame 2](./img/hello_world_frames/frame2.png)
-![frame 3](./img/hello_world_frames/frame3.png)
-![frame 4](./img/hello_world_frames/frame4.png)
-![frame 5](./img/hello_world_frames/frame5.png)
+![frame 0](./Img/hello_world_frames/frame0.png)
+![frame 1](./Img/hello_world_frames/frame1.png)
+![frame 2](./Img/hello_world_frames/frame2.png)
+![frame 3](./Img/hello_world_frames/frame3.png)
+![frame 4](./Img/hello_world_frames/frame4.png)
+![frame 5](./Img/hello_world_frames/frame5.png)
 
 当设计一个播放器时，在合适的时间**播放每一帧**很重要，否则音视频不同步会造成很严重的观看体验。
 
