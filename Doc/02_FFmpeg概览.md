@@ -157,4 +157,4 @@ $ ffmpeg \
 
 ## 超越
 
- 这里有很多 FFmpeg 其他的用途很多 FFmpeg [其他的用途](https://github.com/leandromoreira/digital_video_introduction/blob/master/encoding_pratical_examples.md#split-and-merge-smoothly)。
+这里有很多 FFmpeg 其他的用途很多 FFmpeg [其他的用途](https://github.com/leandromoreira/digital_video_introduction/blob/master/encoding_pratical_examples.md#split-and-merge-smoothly)。
