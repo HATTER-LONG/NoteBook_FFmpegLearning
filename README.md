@@ -7,3 +7,4 @@
 3. ffmpeg 编码和编辑的教程：
    1. [关于 FFmpeg 码率控制](https://slhck.info/posts/)
    2. [ffmpeg-encoding-course](http://slhck.info/ffmpeg-encoding-course/#/)
+
