@@ -30,11 +30,14 @@ link_libraries(# 注意包的依赖顺序
     -lz 
 )
 
-FILE(GLOB SRCFILELIST
-    "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
-   )
-add_executable(HelloWorld ${SRCFILELIST})
+add_executable(HelloWorld "${CMAKE_CURRENT_SOURCE_DIR}/HelloWorld.cpp")
 
 target_link_libraries(HelloWorld
+    ${LOCAL_LINK_LIB} 
+)
+
+add_executable(remuxing "${CMAKE_CURRENT_SOURCE_DIR}/remuxing.cpp")
+
+target_link_libraries(remuxing
     ${LOCAL_LINK_LIB} 
 )
