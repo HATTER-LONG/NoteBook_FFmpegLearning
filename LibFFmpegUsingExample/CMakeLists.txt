@@ -30,14 +30,21 @@ link_libraries(# 注意包的依赖顺序
     -lz 
 )
 
-add_executable(HelloWorld "${CMAKE_CURRENT_SOURCE_DIR}/HelloWorld.cpp")
+add_executable(HelloWorld "${CMAKE_CURRENT_SOURCE_DIR}/00_HelloWorld.cpp")
 
 target_link_libraries(HelloWorld
     ${LOCAL_LINK_LIB} 
 )
 
-add_executable(remuxing "${CMAKE_CURRENT_SOURCE_DIR}/remuxing.cpp")
+add_executable(Remuxing "${CMAKE_CURRENT_SOURCE_DIR}/01_Remuxing.cpp")
 
-target_link_libraries(remuxing
+target_link_libraries(Remuxing
+    ${LOCAL_LINK_LIB} 
+)
+
+add_executable(Transcoding "${CMAKE_CURRENT_SOURCE_DIR}/02_Transcoding.cpp"
+                           "${CMAKE_CURRENT_SOURCE_DIR}/video_debugging.cpp")
+
+target_link_libraries(Transcoding
     ${LOCAL_LINK_LIB} 
 )

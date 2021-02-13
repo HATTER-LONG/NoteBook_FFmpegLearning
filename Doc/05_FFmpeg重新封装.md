@@ -228,3 +228,5 @@ make run_remuxing_fragmented_mp4
 ![mp4 boxes](./Img/boxes_normal_mp4.png)
 
 如你所见， `mdat` atom/box 是**存放音视频帧的地方**。现在我们加载 mp4 分片，看看是如何渲染 `mdat` 的。
+
+![fragmented mp4 boxes](./Img/boxes_fragmente_mp4.png)
