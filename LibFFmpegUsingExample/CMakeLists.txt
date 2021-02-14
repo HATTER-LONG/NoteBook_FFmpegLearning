@@ -14,9 +14,6 @@ add_definitions(-Wall -pedantic -Wc99-extensions)
 find_package(Threads)
 find_package(spdlog REQUIRED CONFIG)
 set(LOCAL_LINK_LIB spdlog::spdlog pthread)
-## 指定头文件、库查找路径
-include_directories(Include Src)
-link_directories(Lib)
 link_libraries(# 注意包的依赖顺序
     avformat
     avdevice
