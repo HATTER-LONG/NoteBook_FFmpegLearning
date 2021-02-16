@@ -6,6 +6,8 @@
   - [FFmpeg 采集音频](#ffmpeg-采集音频)
   - [控制录制开关](#控制录制开关)
 
+[本节源码](../../LibFFmpegUsingExample/Src/01_FFmpegUsingExample/01_FFmpegWithAudioBaseMac.c)
+
 ## Swift 调用 C 接口
 
 1. 编写 C 接口程序。
