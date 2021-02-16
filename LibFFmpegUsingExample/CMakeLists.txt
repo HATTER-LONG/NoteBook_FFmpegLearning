@@ -1,15 +1,15 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(libav_tutorial LANGUAGES CXX)
+project(libav_tutorial)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(CMAKE_VERBOSE_MAKEFILE OFF)
+set(CMAKE_VERBOSE_MAKEFILE ON)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-add_definitions(-Wall -pedantic -Wc99-extensions)
+add_definitions(-Wall -pedantic)
 
 find_package(Threads)
 find_package(spdlog REQUIRED CONFIG)
@@ -24,7 +24,7 @@ link_libraries(# 注意包的依赖顺序
     avutil
     -lx264
     -lx265
-    -lz 
+    -lz
 )
 
 add_executable(HelloWorld "${CMAKE_CURRENT_SOURCE_DIR}/Src/00_libav_tutoria/00_HelloWorld.cpp")
@@ -45,3 +45,6 @@ add_executable(Transcoding "${CMAKE_CURRENT_SOURCE_DIR}/Src/00_libav_tutoria/02_
 target_link_libraries(Transcoding
     ${LOCAL_LINK_LIB} 
 )
+set (CMAKE_C_COMPILER "/usr/bin/clang")
+add_executable(FFmpegWithAudioBaseMac "${CMAKE_CURRENT_SOURCE_DIR}/Src/01_FFmpegUsingExample/00_FFmpegWithAudioBaseMac.c")
+target_link_libraries(FFmpegWithAudioBaseMac)
