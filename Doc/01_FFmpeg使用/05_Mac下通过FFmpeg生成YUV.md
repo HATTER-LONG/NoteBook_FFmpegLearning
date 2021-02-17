@@ -83,6 +83,9 @@ ffmpeg -f avfoundation -framerate 30 -i "0" -target pal-vcd test.mpg
 ffmpeg -f avfoundation -i "0"  -vcodec libx264 myDesktop2.mkv
 ffmpeg -i myDesktop2.mkv -an -c:v rawvideo out.yuv
 ffplay -s "1920x1080"  -pix_fmt yuv422p out.yuv
+
+# 转 yuv 格式
+ffmpeg -pix_fmt yuv422p -s "1920x1080" -i out.yuv -pix_fmt nv12 nv12out.yuv
 ```
 
 查询 yuv 格式[网址](www.fourcc.org/yuv.php)
