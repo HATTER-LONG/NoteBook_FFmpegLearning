@@ -54,3 +54,6 @@ target_link_libraries(01_02_FFmpegCodecAACBaseMac)
 
 add_executable(01_03_FFmpegReadYUMBaseMac "${CMAKE_CURRENT_SOURCE_DIR}/Src/01_FFmpegUsingExample/03_FFmpegReadYUMBaseMac.c")
 target_link_libraries(01_03_FFmpegReadYUMBaseMac)
+
+add_executable(01_04_FFmpegReadNV12ToYum420BaseMac "${CMAKE_CURRENT_SOURCE_DIR}/Src/01_FFmpegUsingExample/04_FFmpegReadNV12ToYum420BaseMac.c")
+target_link_libraries(01_04_FFmpegReadNV12ToYum420BaseMac)

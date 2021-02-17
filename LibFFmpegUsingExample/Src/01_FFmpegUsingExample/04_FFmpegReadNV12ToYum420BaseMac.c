@@ -1,4 +1,4 @@
-#include "03_FFmpegReadYUMBaseMac.h"
+#include "04_FFmpegReadNV12ToYum420BaseMac.h"
 
 #include <string.h>
 
@@ -113,6 +113,7 @@ void rec_video()
         goto __ERROR;
     }
 
+    // open_encoder(int width, int height, enc_ctx);
     // encode
     read_data_and_encode(fmt_ctx, outfile);
 
