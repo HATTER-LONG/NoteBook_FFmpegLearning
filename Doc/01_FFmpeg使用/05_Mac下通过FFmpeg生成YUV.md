@@ -78,3 +78,5 @@ ffmpeg -devices
 ffmpeg -f avfoundation -list_devices true -i ""
 ffmpeg -f avfoundation -framerate 30 -i "0" -target pal-vcd test.mpg
 ```
+
+查询 yuv 格式[网址](www.fourcc.org/yuv.php)
