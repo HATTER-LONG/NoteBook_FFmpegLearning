@@ -98,6 +98,7 @@ void rec_audio()
         AV_SAMPLE_FMT_S16,                          //采样格式
         0);
     // read data from device
+    av_init_packet(&pkt);
     while ((ret = av_read_frame(fmt_ctx, &pkt)) == 0 && rec_status)
     {
 

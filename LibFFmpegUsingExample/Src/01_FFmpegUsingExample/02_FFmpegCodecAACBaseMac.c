@@ -248,7 +248,7 @@ static void read_data_and_encode(AVFormatContext* fmt_ctx,   //
 
     //分配重采样输入/输出缓冲区
     alloc_data_4_resample(&src_data, &src_linesize, &dst_data, &dst_linesize);
-
+    av_init_packet(&pkt);
     // read data from device
     while ((ret = av_read_frame(fmt_ctx, &pkt)) == 0 && rec_status)
     {
@@ -310,8 +310,8 @@ void rec_audio()
     rec_status = 1;
 
     // create file
-    // char *out = "/Users/lichao/Downloads/av_base/audio.pcm";
-    char* out = "/Users/lichao/Downloads/av_base/audio.aac";
+    // char *out = "./audio.pcm";
+    char* out = "./audio.aac";
     FILE* outfile = fopen(out, "wb+");
     if (!outfile)
     {
@@ -375,8 +375,8 @@ __ERROR:
     return;
 }
 
-#if 0
-int main(int argc, char *argv[])
+#if 1
+int main(int argc, char* argv[])
 {
     rec_audio();
     return 0;

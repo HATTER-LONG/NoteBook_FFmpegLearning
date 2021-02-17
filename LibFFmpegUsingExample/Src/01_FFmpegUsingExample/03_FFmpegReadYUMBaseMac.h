@@ -5,8 +5,9 @@
 #include "libavformat/avformat.h"
 #include "libavutil/avutil.h"
 #include "libswresample/swresample.h"
+#include "libswscale/swscale.h"
 
 #include <stdio.h>
 
 void set_status(int status);
-void rec_audio(void);
+void rec_video(void);

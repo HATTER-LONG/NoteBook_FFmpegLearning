@@ -27,24 +27,30 @@ link_libraries(# 注意包的依赖顺序
     -lz
 )
 
-add_executable(HelloWorld "${CMAKE_CURRENT_SOURCE_DIR}/Src/00_libav_tutoria/00_HelloWorld.cpp")
+add_executable(00_01_HelloWorld "${CMAKE_CURRENT_SOURCE_DIR}/Src/00_libav_tutoria/00_HelloWorld.cpp")
 
-target_link_libraries(HelloWorld
+target_link_libraries(00_01_HelloWorld
     ${LOCAL_LINK_LIB} 
 )
 
-add_executable(Remuxing "${CMAKE_CURRENT_SOURCE_DIR}/Src/00_libav_tutoria/01_Remuxing.cpp")
+add_executable(00_02_Remuxing "${CMAKE_CURRENT_SOURCE_DIR}/Src/00_libav_tutoria/01_Remuxing.cpp")
 
-target_link_libraries(Remuxing
+target_link_libraries(00_02_Remuxing
     ${LOCAL_LINK_LIB} 
 )
 
-add_executable(Transcoding "${CMAKE_CURRENT_SOURCE_DIR}/Src/00_libav_tutoria/02_Transcoding.cpp"
+add_executable(00_03_Transcoding "${CMAKE_CURRENT_SOURCE_DIR}/Src/00_libav_tutoria/02_Transcoding.cpp"
                            "${CMAKE_CURRENT_SOURCE_DIR}/Src/00_libav_tutoria/video_debugging.cpp")
 
-target_link_libraries(Transcoding
+target_link_libraries(00_03_Transcoding
     ${LOCAL_LINK_LIB} 
 )
 set (CMAKE_C_COMPILER "/usr/bin/clang")
-add_executable(FFmpegWithAudioBaseMac "${CMAKE_CURRENT_SOURCE_DIR}/Src/01_FFmpegUsingExample/00_FFmpegWithAudioBaseMac.c")
-target_link_libraries(FFmpegWithAudioBaseMac)
+add_executable(01_01_FFmpegWithAudioBaseMac "${CMAKE_CURRENT_SOURCE_DIR}/Src/01_FFmpegUsingExample/01_FFmpegWithAudioBaseMac.c")
+target_link_libraries(01_01_FFmpegWithAudioBaseMac)
+
+add_executable(01_02_FFmpegCodecAACBaseMac "${CMAKE_CURRENT_SOURCE_DIR}/Src/01_FFmpegUsingExample/02_FFmpegCodecAACBaseMac.c")
+target_link_libraries(01_02_FFmpegCodecAACBaseMac)
+
+add_executable(01_03_FFmpegReadYUMBaseMac "${CMAKE_CURRENT_SOURCE_DIR}/Src/01_FFmpegUsingExample/03_FFmpegReadYUMBaseMac.c")
+target_link_libraries(01_03_FFmpegReadYUMBaseMac)

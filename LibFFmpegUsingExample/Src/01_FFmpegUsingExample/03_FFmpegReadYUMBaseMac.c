@@ -9,95 +9,6 @@ void set_status(int status)
     rec_status = status;
 }
 
-//[in]
-//[out]
-// ret
-//@brief encode audio data
-static void encode(AVCodecContext* ctx, AVFrame* frame, AVPacket* pkt, FILE* output)
-{
-
-    int ret = 0;
-
-    //将数据送编码器
-    ret = avcodec_send_frame(ctx, frame);
-
-    //如果ret>=0说明数据设置成功
-    while (ret >= 0)
-    {
-        //获取编码后的音频数据,如果成功，需要重复获取，直到失败为止
-        ret = avcodec_receive_packet(ctx, pkt);
-
-        if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
-        {
-            return;
-        }
-        if (ret < 0)
-        {
-            printf("Error, encoding audio frame\n");
-            exit(-1);
-        }
-
-        // write file
-        fwrite(pkt->data, 1, pkt->size, output);
-        fflush(output);
-    }
-
-    return;
-}
-
-//[in]
-//[out]
-//
-static AVCodecContext* open_coder()
-{
-
-    //打开编码器
-    // avcodec_find_encoder(AV_CODEC_ID_AAC);
-    AVCodec* codec = avcodec_find_encoder_by_name("libfdk_aac");
-
-    //创建 codec 上下文
-    AVCodecContext* codec_ctx = avcodec_alloc_context3(codec);
-
-    codec_ctx->sample_fmt = AV_SAMPLE_FMT_S16;         //输入音频的采样大小
-    codec_ctx->channel_layout = AV_CH_LAYOUT_STEREO;   //输入音频的channel layout
-    codec_ctx->channels = 2;                           //输入音频 channel 个数
-    codec_ctx->sample_rate = 44100;                    //输入音频的采样率
-    codec_ctx->bit_rate = 0;                           // AAC_LC: 128K, AAC HE: 64K, AAC HE V2: 32K
-    codec_ctx->profile = FF_PROFILE_AAC_HE_V2;         //阅读 ffmpeg 代码
-
-    //打开编码器
-    if (avcodec_open2(codec_ctx, codec, NULL) < 0)
-    {
-        //
-
-        return NULL;
-    }
-
-    return codec_ctx;
-}
-
-static SwrContext* init_swr()
-{
-
-    SwrContext* swr_ctx = NULL;
-
-    // channel, number/
-    swr_ctx = swr_alloc_set_opts(NULL,   // ctx
-        AV_CH_LAYOUT_STEREO,             //输出channel布局
-        AV_SAMPLE_FMT_S16,               //输出的采样格式
-        44100,                           //采样率
-        AV_CH_LAYOUT_STEREO,             //输入channel布局
-        AV_SAMPLE_FMT_FLT,               //输入的采样格式
-        44100,                           //输入的采样率
-        0, NULL);
-
-    if (!swr_ctx) { }
-
-    if (swr_init(swr_ctx) < 0) { }
-
-    return swr_ctx;
-}
-
 /**
  * @brief open audio device
  * @return succ: AVFormatContext*, fail: NULL
@@ -115,8 +26,16 @@ static AVFormatContext* open_dev()
     AVDictionary* options = NULL;
 
     //[[video device]:[audio device]]
-    char* devicename = ":0";
+    // mac 有两个默认相机 0：机器本身相机 1：桌面
+    char* devicename = "0";
 
+    // ffmpeg -s 1920*1080 out.yum
+    // key: video_size == -s
+    //      framerate 帧率
+    // value: 1920x1080
+    av_dict_set(&options, "video_size", "640x480", 0);
+    av_dict_set(&options, "framerate", "30", 0);
+    av_dict_set(&options, "pixel_format", "uyvy422", 0);
     // get format
     AVInputFormat* iformat = av_find_input_format("avfoundation");
 
@@ -132,173 +51,38 @@ static AVFormatContext* open_dev()
 }
 
 /**
- * @brief xxxx
- * @return xxx
  */
-static AVFrame* create_frame()
+static void read_data_and_encode(AVFormatContext* fmt_ctx, FILE* outfile)
 {
-
-    AVFrame* frame = NULL;
-
-    //音频输入数据
-    frame = av_frame_alloc();
-    if (!frame)
-    {
-        printf("Error, No Memory!\n");
-        goto __ERROR;
-    }
-
-    // set parameters
-    frame->nb_samples = 512;                       //单通道一个音频帧的采样数
-    frame->format = AV_SAMPLE_FMT_S16;             //每个采样的大小
-    frame->channel_layout = AV_CH_LAYOUT_STEREO;   // channel layout
-
-    // alloc inner memory
-    av_frame_get_buffer(frame, 0);   // 512 * 2 * = 2048
-    if (!frame->data[0])
-    {
-        printf("Error, Failed to alloc buf in frame!\n");
-        //内存泄漏
-        goto __ERROR;
-    }
-
-    return frame;
-
-__ERROR:
-    if (frame)
-    {
-        av_frame_free(&frame);
-    }
-
-    return NULL;
-}
-
-static void alloc_data_4_resample(
-    uint8_t*** src_data, int* src_linesize, uint8_t*** dst_data, int* dst_linesize)
-{
-    // 4096/4=1024/2=512
-    //创建输入缓冲区
-    av_samples_alloc_array_and_samples(src_data,   //输出缓冲区地址
-        src_linesize,                              //缓冲区的大小
-        2,                                         //通道个数
-        512,                                       //单通道采样个数
-        AV_SAMPLE_FMT_FLT,                         //采样格式
-        0);
-
-    //创建输出缓冲区
-    av_samples_alloc_array_and_samples(dst_data,   //输出缓冲区地址
-        dst_linesize,                              //缓冲区的大小
-        2,                                         //通道个数
-        512,                                       //单通道采样个数
-        AV_SAMPLE_FMT_S16,                         //采样格式
-        0);
-}
-
-/**
- */
-static void free_data_4_resample(uint8_t** src_data, uint8_t** dst_data)
-{
-    //释放输入输出缓冲区
-    if (src_data)
-    {
-        av_freep(&src_data[0]);
-    }
-    av_freep(&src_data);
-
-    if (dst_data)
-    {
-        av_freep(&dst_data[0]);
-    }
-    av_freep(&dst_data);
-}
-
-/**
- */
-static void read_data_and_encode(AVFormatContext* fmt_ctx,   //
-    AVCodecContext* c_ctx, SwrContext* swr_ctx, FILE* outfile)
-{
-
     int ret = 0;
 
     // pakcet
     AVPacket pkt;
-    AVFrame* frame = NULL;
-    AVPacket* newpkt = NULL;
-
-    //重采样缓冲区
-    uint8_t** src_data = NULL;
-    int src_linesize = 0;
-
-    uint8_t** dst_data = NULL;
-    int dst_linesize = 0;
-
-    frame = create_frame();
-    if (!frame)
-    {
-        // printf(...)
-        goto __ERROR;
-    }
-
-    newpkt = av_packet_alloc();   //分配编码后的数据空间
-    if (!newpkt)
-    {
-        printf("Error, Failed to alloc buf in frame!\n");
-        goto __ERROR;
-    }
-
-    //分配重采样输入/输出缓冲区
-    alloc_data_4_resample(&src_data, &src_linesize, &dst_data, &dst_linesize);
-
+    av_init_packet(&pkt);
     // read data from device
     while ((ret = av_read_frame(fmt_ctx, &pkt)) == 0 && rec_status)
     {
+        // write file
+        //（宽 x 高）x (位深 yuv422 = 2/ yuv420 = 1.5/ yuv444 = 3)
+        fwrite(pkt.data, 1, 614400, outfile);   // 614400 分辨率计算码率  640*480* 2(yuv422)
+        fflush(outfile);
 
-        //进行内存拷贝，按字节拷贝的
-        memcpy((void*)src_data[0], (void*)pkt.data, pkt.size);
-
-        //重采样
-        swr_convert(swr_ctx,             //重采样的上下文
-            dst_data,                    //输出结果缓冲区
-            512,                         //每个通道的采样数
-            (const uint8_t**)src_data,   //输入缓冲区
-            512);                        //输入单个通道的采样数
-
-        //将重采样的数据拷贝到 frame 中
-        memcpy((void*)frame->data[0], dst_data[0], dst_linesize);
-
-        // encode
-        encode(c_ctx, frame, newpkt, outfile);
-
-        //
-        av_packet_unref(&pkt);   // release pkt
+        // release pkt
+        av_packet_unref(&pkt);
     }
-
-    //强制将编码器缓冲区中的音频进行编码输出
-    encode(c_ctx, NULL, newpkt, outfile);
-
-__ERROR:
-    //释放 AVFrame 和 AVPacket
-    if (frame)
+    if (ret < 0)
     {
-        av_frame_free(&frame);
+        char errors[1024] = { 0 };
+        av_strerror(ret, errors, 1024);
+        fprintf(stderr, "Failed to av_read_frame, [%d]%s\n", ret, errors);
     }
-
-    if (newpkt)
-    {
-        av_packet_free(&newpkt);
-    }
-
-    //释放重采样缓冲区
-    free_data_4_resample(src_data, dst_data);
 }
 
-void rec_audio()
+// void rec_audio()
+void rec_video()
 {
-
     // context
     AVFormatContext* fmt_ctx = NULL;
-    AVCodecContext* c_ctx = NULL;
-    SwrContext* swr_ctx = NULL;
 
     // set log level
     av_log_set_level(AV_LOG_DEBUG);
@@ -310,8 +94,9 @@ void rec_audio()
     rec_status = 1;
 
     // create file
-    // char *out = "/Users/lichao/Downloads/av_base/audio.pcm";
-    char* out = "/Users/lichao/Downloads/av_base/audio.aac";
+    // char *out = "./audio.pcm";
+    // char* out = "./audio.aac";
+    char* out = "./record.yuv";
     FILE* outfile = fopen(out, "wb+");
     if (!outfile)
     {
@@ -327,36 +112,10 @@ void rec_audio()
         goto __ERROR;
     }
 
-    //打开编码器上下文
-    c_ctx = open_coder();
-    if (!c_ctx)
-    {
-        printf("...");
-        goto __ERROR;
-    }
-
-    //初始化重采样上下文
-    swr_ctx = init_swr();
-    if (!swr_ctx)
-    {
-        printf("Error, Failed to alloc buf in frame!\n");
-        goto __ERROR;
-    }
-
     // encode
-    read_data_and_encode(fmt_ctx, c_ctx, swr_ctx, outfile);
+    read_data_and_encode(fmt_ctx, outfile);
 
 __ERROR:
-    //释放重采样的上下文
-    if (swr_ctx)
-    {
-        swr_free(&swr_ctx);
-    }
-
-    if (c_ctx)
-    {
-        avcodec_free_context(&c_ctx);
-    }
 
     // close device and release ctx
     if (fmt_ctx)
@@ -374,11 +133,114 @@ __ERROR:
 
     return;
 }
-
-#if 0
-int main(int argc, char *argv[])
+int anotherMethod()
 {
-    rec_audio();
+    // rec_video();
+    AVFormatContext* pFormatCtx;
+    int i, videoindex;
+    AVCodecContext* pCodecCtx;
+    AVCodec* pCodec;
+
+    avdevice_register_all();
+    // avformat_network_init();
+    // Register Device
+    // show_dshow_device();
+    pFormatCtx = avformat_alloc_context();
+
+    AVInputFormat* ifmt = av_find_input_format("avfoundation");
+    if (avformat_open_input(&pFormatCtx, "0", ifmt, NULL) != 0)
+    {
+        printf("Couldn't open input stream.\n");
+        return -1;
+    }
+
+    if (avformat_find_stream_info(pFormatCtx, NULL) < 0)
+    {
+        printf("Couldn't find stream information.\n");
+        return -1;
+    }
+    videoindex = -1;
+    for (i = 0; i < pFormatCtx->nb_streams; i++)
+    {
+        if (pFormatCtx->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO)
+        {
+            videoindex = i;
+        }
+    }
+    if (videoindex == -1)
+    {
+        printf("Couldn't find a video stream.\n");
+        return -1;
+    }
+    pCodecCtx = pFormatCtx->streams[videoindex]->codec;
+    pCodec = avcodec_find_decoder(pCodecCtx->codec_id);
+    if (pCodec == NULL)
+    {
+        printf("Codec not found.\n");
+        return -1;
+    }
+    if (avcodec_open2(pCodecCtx, pCodec, NULL) < 0)
+    {
+        printf("Could not open codec.\n");
+        return -1;
+    }
+    AVFrame *pFrame, *pFrameYUV;
+    pFrame = av_frame_alloc();
+    pFrameYUV = av_frame_alloc();
+    uint8_t* out_buffer =
+        (uint8_t*)av_malloc(avpicture_get_size(AV_PIX_FMT_YUV420P, pCodecCtx->width, pCodecCtx->height));
+    avpicture_fill(
+        (AVPicture*)pFrameYUV, out_buffer, AV_PIX_FMT_YUV420P, pCodecCtx->width, pCodecCtx->height);
+    int ret, got_picture;
+    AVPacket* packet = (AVPacket*)av_malloc(sizeof(AVPacket));
+    FILE* fp_yuv = fopen("output.yuv", "wb");
+    struct SwsContext* img_convert_ctx;
+    img_convert_ctx = sws_getContext(pCodecCtx->width, pCodecCtx->height, pCodecCtx->pix_fmt,
+        pCodecCtx->width, pCodecCtx->height, AV_PIX_FMT_YUV420P, SWS_BICUBIC, NULL, NULL, NULL);
+    ///这里打印出视频的宽高
+    fprintf(stderr, "w= %d h= %d\n", pCodecCtx->width, pCodecCtx->height);
+    ///我们就读取1000张图像
+    for (int i = 0; i < 1000; i++)
+    {
+        if ((ret = av_read_frame(pFormatCtx, packet)) < 0)
+        {
+            char errors[1024] = { 0 };
+            av_strerror(ret, errors, 1024);
+            fprintf(stderr, "Failed to open audio device, [%d]%s\n", ret, errors);
+            break;
+        }
+        if (packet->stream_index == videoindex)
+        {
+            ret = avcodec_decode_video2(pCodecCtx, pFrame, &got_picture, packet);
+            if (ret < 0)
+            {
+                printf("Decode Error.\n");
+                return -1;
+            }
+            if (got_picture)
+            {
+                sws_scale(img_convert_ctx, (const uint8_t* const*)pFrame->data, pFrame->linesize, 0,
+                    pCodecCtx->height, pFrameYUV->data, pFrameYUV->linesize);
+                int y_size = pCodecCtx->width * pCodecCtx->height;
+                fwrite(pFrameYUV->data[0], 1, y_size, fp_yuv);       // Y
+                fwrite(pFrameYUV->data[1], 1, y_size / 4, fp_yuv);   // U
+                fwrite(pFrameYUV->data[2], 1, y_size / 4, fp_yuv);   // V
+            }
+        }
+        av_free_packet(packet);
+    }
+    sws_freeContext(img_convert_ctx);
+    fclose(fp_yuv);
+    av_free(out_buffer);
+    av_free(pFrameYUV);
+    avcodec_close(pCodecCtx);
+    avformat_close_input(&pFormatCtx);
+}
+
+#if 1
+int main(int argc, char* argv[])
+{
+    rec_video();
     return 0;
 }
 #endif
