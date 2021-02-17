@@ -60,6 +60,7 @@ static AVFrame* create_frame(int width, int height)
 {
     AVFrame* frame = NULL;
     frame = av_frame_alloc();
+
     char errors[1024] = {
         0,
     };
@@ -90,12 +91,54 @@ __ERROR:
     return NULL;
 }
 
-/**
- */
-static void read_data_and_encode(AVFormatContext* fmt_ctx, AVCodecContext* codec_ctx, FILE* outfile)
+static void encode(AVCodecContext* enc_ctx, AVFrame* frame, AVPacket* newpkt, FILE* outfile)
 {
     int ret = 0;
+    if (frame)
+        printf("send frame to encoder, pts = %lld\n", frame->pts);
 
+    // 送原始数据进入编码器
+    ret = avcodec_send_frame(enc_ctx, frame);
+    if (ret < 0)
+    {
+        printf("Error, send a frame for encoding failed\n");
+        exit(1);
+    }
+
+    // 从编码器获取编码好的数据
+    while (ret >= 0)
+    {
+        ret = avcodec_receive_packet(enc_ctx, newpkt);
+        //如果编码器数据不足时会返回 EAGAIN，或者数据尾时会返回 AVERROR_EOF
+        if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
+        {
+            return;
+        }
+        if (ret < 0)
+        {
+            printf("Error, failed to encode\n");
+            exit(1);
+        }
+        if (ret != 0)
+        {
+            char errors[1024] = {
+                0,
+            };
+            av_strerror(ret, errors, 1024);
+            fprintf(stderr, "Failed to open audio device, [%d]%s\n", ret, errors);
+        }
+        fwrite(newpkt->data, 1, newpkt->size, outfile);
+        av_packet_unref(newpkt);   // 注意释放资源
+    }
+}
+
+/**
+ */
+static void read_data_and_encode(
+    AVFormatContext* fmt_ctx, AVCodecContext* enc_ctx, FILE* yuvoutfile, FILE* h264outfile)
+{
+    int ret = 0;
+    int base = 0;
     // pakcet
     AVPacket pkt;
     AVFrame* frame = NULL;
@@ -111,11 +154,13 @@ static void read_data_and_encode(AVFormatContext* fmt_ctx, AVCodecContext* codec
     }
 
     newpkt = av_packet_alloc();
+
     if (!newpkt)
     {
         printf("ERROR, Failed to alloc packet!\n");
         goto __ERROR;
     }
+    av_init_packet(newpkt);
 
     // read data from device
     while (rec_status && (ret = av_read_frame(fmt_ctx, &pkt)) == 0)
@@ -139,20 +184,26 @@ static void read_data_and_encode(AVFormatContext* fmt_ctx, AVCodecContext* codec
             frame->data[1][i] = pkt.data[2073600 + i * 2];
             frame->data[2][i] = pkt.data[2073600 + i * 2 + 1];
         }
-        fwrite(frame->data[0], 1, 2073600, outfile);
-        fwrite(frame->data[1], 1, 2073600 / 4, outfile);
-        fwrite(frame->data[2], 1, 2073600 / 4, outfile);
+        fwrite(frame->data[0], 1, 2073600, yuvoutfile);
+        fwrite(frame->data[1], 1, 2073600 / 4, yuvoutfile);
+        fwrite(frame->data[2], 1, 2073600 / 4, yuvoutfile);
 
+        // 更新 pts  h264 要求 pts 每帧连续
+        frame->pts = base++;
+        encode(enc_ctx, frame, newpkt, h264outfile);
         // release pkt
         av_packet_unref(&pkt);
     }
+    encode(enc_ctx, NULL, newpkt, h264outfile);   // 给编码器传入 NULL ,使得编码器情况缓冲区
+
     if (ret < 0)
     {
         char errors[1024] = { 0 };
         av_strerror(ret, errors, 1024);
         fprintf(stderr, "Failed to av_read_frame, [%d]%s\n", ret, errors);
     }
-    fflush(outfile);
+    fflush(yuvoutfile);
+    fflush(h264outfile);
 __ERROR:
     if (newpkt)
     {
@@ -237,18 +288,25 @@ void rec_video()
 
     // start record
     rec_status = 1;
-
+    FILE* yuvoutfile = NULL;
+    FILE* h264outfile = NULL;
     // create file
     // char *out = "./audio.pcm";
     // char* out = "./audio.aac";
-    char* out = "./record.yuv";
-    FILE* outfile = fopen(out, "wb+");
-    if (!outfile)
+    char* yuvout = "./record.yuv";
+    yuvoutfile = fopen(yuvout, "wb+");
+    if (!yuvoutfile)
     {
-        printf("Error, Failed to open file!\n");
+        printf("Error, Failed to open file yuvoutfile!\n");
         goto __ERROR;
     }
-
+    char* h264out = "./record.h264";
+    h264outfile = fopen(h264out, "wb+");
+    if (!h264outfile)
+    {
+        printf("Error, Failed to open file h264outfile!\n");
+        goto __ERROR;
+    }
     //打开设备
     fmt_ctx = open_dev();
     if (!fmt_ctx)
@@ -260,7 +318,7 @@ void rec_video()
     open_encoder(WIDTH, HEIGHT, &enc_ctx);
 
     // encode
-    read_data_and_encode(fmt_ctx, enc_ctx, outfile);
+    read_data_and_encode(fmt_ctx, enc_ctx, yuvoutfile, h264outfile);
 
 __ERROR:
 
@@ -270,12 +328,16 @@ __ERROR:
         avformat_close_input(&fmt_ctx);
     }
 
-    if (outfile)
+    if (yuvoutfile)
     {
         // close file
-        fclose(outfile);
+        fclose(yuvoutfile);
     }
-
+    if (h264outfile)
+    {
+        // close file
+        fclose(h264outfile);
+    }
     av_log(NULL, AV_LOG_DEBUG, "finish!\n");
 
     return;
