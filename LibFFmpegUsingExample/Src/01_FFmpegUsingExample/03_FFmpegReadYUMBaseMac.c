@@ -61,7 +61,7 @@ static void read_data_and_encode(AVFormatContext* fmt_ctx, FILE* outfile)
     AVPacket pkt;
     av_init_packet(&pkt);
     // read data from device
-    while ((ret = av_read_frame(fmt_ctx, &pkt)) == 0 && rec_status)
+    while (rec_status && (ret = av_read_frame(fmt_ctx, &pkt)) == 0)
     {
         // write file
         //（宽 x 高）x (位深 yuv422 = 2/ yuv420 = 1.5/ yuv444 = 3)

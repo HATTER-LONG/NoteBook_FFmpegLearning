@@ -250,7 +250,7 @@ static void read_data_and_encode(AVFormatContext* fmt_ctx,   //
     alloc_data_4_resample(&src_data, &src_linesize, &dst_data, &dst_linesize);
     av_init_packet(&pkt);
     // read data from device
-    while ((ret = av_read_frame(fmt_ctx, &pkt)) == 0 && rec_status)
+    while (rec_status && (ret = av_read_frame(fmt_ctx, &pkt)) == 0)
     {
 
         //进行内存拷贝，按字节拷贝的

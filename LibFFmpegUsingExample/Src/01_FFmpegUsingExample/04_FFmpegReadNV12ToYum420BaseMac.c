@@ -3,6 +3,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define WIDTH 1920
+#define HEIGHT 1080
+#define WIDTHXHEIGHT "1920x1080"
+
 static int rec_status = 0;
 
 void set_status(int status)
@@ -35,7 +39,7 @@ static AVFormatContext* open_dev()
     // key: video_size == -s
     //      framerate 帧率
     // value: 1920x1080
-    av_dict_set(&options, "video_size", "1920x1080", 0);
+    av_dict_set(&options, "video_size", WIDTHXHEIGHT, 0);
     av_dict_set(&options, "framerate", "30", 0);
     av_dict_set(&options, "pixel_format", "nv12", 0);
     // get format
@@ -52,22 +56,92 @@ static AVFormatContext* open_dev()
     return fmt_ctx;
 }
 
+static AVFrame* create_frame(int width, int height)
+{
+    AVFrame* frame = NULL;
+    frame = av_frame_alloc();
+    char errors[1024] = {
+        0,
+    };
+    int ret = 0;
+    if (!frame)
+    {
+        printf("Error, No Memory!\n");
+        goto __ERROR;
+    }
+    frame->width = width;
+    frame->height = height;
+    frame->format = AV_PIX_FMT_YUV420P;
+
+    // alloc inner memory
+    ret = av_frame_get_buffer(frame, 32);   // 按 32 位对齐
+    if (ret < 0)
+    {
+        av_strerror(ret, errors, 1024);
+        fprintf(stderr, "Failed to open audio device, [%d]%s\n", ret, errors);
+        goto __ERROR;
+    }
+    return frame;
+__ERROR:
+    if (frame)
+    {
+        av_frame_free(&frame);
+    }
+    return NULL;
+}
+
 /**
  */
-static void read_data_and_encode(AVFormatContext* fmt_ctx, FILE* outfile)
+static void read_data_and_encode(AVFormatContext* fmt_ctx, AVCodecContext* codec_ctx, FILE* outfile)
 {
     int ret = 0;
 
     // pakcet
     AVPacket pkt;
+    AVFrame* frame = NULL;
+    AVPacket* newpkt = NULL;
     av_init_packet(&pkt);
-    // read data from device
-    while ((ret = av_read_frame(fmt_ctx, &pkt)) == 0 && rec_status)
+
+    //创建 AVFrame
+    frame = create_frame(WIDTH, HEIGHT);
+    if (!frame)
     {
+        printf("ERROR, Failed to create frame!\n");
+        goto __ERROR;
+    }
+
+    newpkt = av_packet_alloc();
+    if (!newpkt)
+    {
+        printf("ERROR, Failed to alloc packet!\n");
+        goto __ERROR;
+    }
+
+    // read data from device
+    while (rec_status && (ret = av_read_frame(fmt_ctx, &pkt)) == 0)
+    {
+        av_log(NULL, AV_LOG_INFO, "packet size is %d(%p)\n", pkt.size, (void*)pkt.data);
+
         // write file
         //（宽 x 高）x (位深 yuv422 = 2/ yuv420 = 1.5/ yuv444 = 3)
-        fwrite(pkt.data, 1, 3110400, outfile);   // 4147200 分辨率计算码率  1920*1080* 2(yuv422)
-        fflush(outfile);
+
+        // YYYYYYYYUVUV   NV12
+        // YYYYYYYYUUVV  YUV420
+        // 转换  先将 NV12 的 Y 数据拷贝到 data[0] 中
+        // 1920 x 1080 = 2073600 Y 数据长度
+        memcpy(frame->data[0], pkt.data, 2073600);   // copy Y data
+
+        // UV
+        // 2073600 / 4 为 UV 分辨率
+        // 2073600之后是 UV 数据
+        for (int i = 0; i < 2073600 / 4; i++)
+        {
+            frame->data[1][i] = pkt.data[2073600 + i * 2];
+            frame->data[2][i] = pkt.data[2073600 + i * 2 + 1];
+        }
+        fwrite(frame->data[0], 1, 2073600, outfile);
+        fwrite(frame->data[1], 1, 2073600 / 4, outfile);
+        fwrite(frame->data[2], 1, 2073600 / 4, outfile);
 
         // release pkt
         av_packet_unref(&pkt);
@@ -77,6 +151,12 @@ static void read_data_and_encode(AVFormatContext* fmt_ctx, FILE* outfile)
         char errors[1024] = { 0 };
         av_strerror(ret, errors, 1024);
         fprintf(stderr, "Failed to av_read_frame, [%d]%s\n", ret, errors);
+    }
+    fflush(outfile);
+__ERROR:
+    if (newpkt)
+    {
+        av_packet_free(&newpkt);
     }
 }
 
@@ -177,10 +257,10 @@ void rec_video()
         goto __ERROR;
     }
     //宽高与输入信息匹配
-    open_encoder(1920, 1080, &enc_ctx);
+    open_encoder(WIDTH, HEIGHT, &enc_ctx);
 
     // encode
-    read_data_and_encode(fmt_ctx, outfile);
+    read_data_and_encode(fmt_ctx, enc_ctx, outfile);
 
 __ERROR:
 

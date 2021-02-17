@@ -99,10 +99,10 @@ void rec_audio()
         0);
     // read data from device
     av_init_packet(&pkt);
-    while ((ret = av_read_frame(fmt_ctx, &pkt)) == 0 && rec_status)
+    while (rec_status && (ret = av_read_frame(fmt_ctx, &pkt)) == 0)
     {
 
-        av_log(NULL, AV_LOG_INFO, "packet size is %d(%p)\n", pkt.size, pkt.data);
+        av_log(NULL, AV_LOG_INFO, "packet size is %d(%p)\n", pkt.size, (void*)pkt.data);
 
         //进行内存拷贝，按字节拷贝的
         memcpy((void*)src_data[0], (void*)pkt.data, pkt.size);
