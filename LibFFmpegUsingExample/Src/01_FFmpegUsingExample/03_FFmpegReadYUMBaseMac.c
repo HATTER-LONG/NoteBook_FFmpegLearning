@@ -27,17 +27,18 @@ static AVFormatContext* open_dev()
 
     //[[video device]:[audio device]]
     // mac 有两个默认相机 0：机器本身相机 1：桌面
-    char* devicename = "0";
+    // char* devicename = "0"
+    char* devicename = "/Users/caolei/Desktop/test/out.yuv";
 
     // ffmpeg -s 1920*1080 out.yum
     // key: video_size == -s
     //      framerate 帧率
     // value: 1920x1080
-    av_dict_set(&options, "video_size", "640x480", 0);
+    av_dict_set(&options, "video_size", "1920x1080", 0);
     av_dict_set(&options, "framerate", "30", 0);
-    av_dict_set(&options, "pixel_format", "uyvy422", 0);
+    av_dict_set(&options, "pixel_format", "yuv422p", 0);
     // get format
-    AVInputFormat* iformat = av_find_input_format("avfoundation");
+    AVInputFormat* iformat = NULL;   // 从文件读取不需要输入设备 av_find_input_format("avfoundation");
 
     // open device
     if ((ret = avformat_open_input(&fmt_ctx, devicename, iformat, &options)) < 0)
@@ -64,7 +65,7 @@ static void read_data_and_encode(AVFormatContext* fmt_ctx, FILE* outfile)
     {
         // write file
         //（宽 x 高）x (位深 yuv422 = 2/ yuv420 = 1.5/ yuv444 = 3)
-        fwrite(pkt.data, 1, 614400, outfile);   // 614400 分辨率计算码率  640*480* 2(yuv422)
+        fwrite(pkt.data, 1, 4147200, outfile);   // 614400 分辨率计算码率  640*480* 2(yuv422)
         fflush(outfile);
 
         // release pkt
