@@ -9,7 +9,7 @@ set(CMAKE_VERBOSE_MAKEFILE OFF)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-add_definitions(-Wall -pedantic)
+add_definitions(-Wall -pedantic -Wno-c99-extensions)
 
 find_package(Threads)
 find_package(spdlog REQUIRED CONFIG)

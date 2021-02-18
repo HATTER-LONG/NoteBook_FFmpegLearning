@@ -394,9 +394,10 @@ int main(int argc, char* argv[])
     StreamingParams sp = { 0 };
     sp.copy_audio = 1;
     sp.copy_video = 0;
-    sp.video_codec = "libx265";
-    sp.codec_priv_key = "x265-params";
-    sp.codec_priv_value = "keyint=60:min-keyint=60:scenecut=0";
+
+    sp.video_codec = const_cast<char*>("libx265");
+    sp.codec_priv_key = const_cast<char*>("x265-params");
+    sp.codec_priv_value = const_cast<char*>("keyint=60:min-keyint=60:scenecut=0");
 
     /*
      * H264 -> H264 (fixed gop)

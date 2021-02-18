@@ -1,6 +1,14 @@
 #include "05_PushStream.h"
 
-void PushStream() { }
+void set_status(int status)
+{
+    return;
+}
+
+void PushStream()
+{
+    return;
+}
 
 int main(void)
 {
