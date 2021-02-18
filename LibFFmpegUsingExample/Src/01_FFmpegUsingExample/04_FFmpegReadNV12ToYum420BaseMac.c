@@ -95,8 +95,10 @@ static void encode(AVCodecContext* enc_ctx, AVFrame* frame, AVPacket* newpkt, FI
 {
     int ret = 0;
     if (frame)
-        printf("send frame to encoder, pts = %ld\n", frame->pts);
-
+    {
+        long long ptsTmp = frame->pts;
+        printf("send frame to encoder, pts = %lld\n", ptsTmp);
+    }
     // 送原始数据进入编码器
     ret = avcodec_send_frame(enc_ctx, frame);
     if (ret < 0)

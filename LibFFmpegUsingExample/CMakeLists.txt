@@ -9,7 +9,8 @@ set(CMAKE_VERBOSE_MAKEFILE OFF)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-add_definitions(-Wall -pedantic -Wno-c99-extensions)
+add_definitions(-Wall -pedantic -Wno-c99-extensions -fno-limit-debug-info)
+set (CMAKE_C_COMPILER "/usr/bin/clang")
 
 find_package(Threads)
 find_package(spdlog REQUIRED CONFIG)
@@ -43,7 +44,7 @@ add_executable(00_03_Transcoding "${CMAKE_CURRENT_SOURCE_DIR}/Src/00_libav_tutor
                            "${CMAKE_CURRENT_SOURCE_DIR}/Src/00_libav_tutoria/video_debugging.cpp")
 
 target_link_libraries(00_03_Transcoding)
-set (CMAKE_C_COMPILER "/usr/bin/clang")
+
 add_executable(01_01_FFmpegWithAudioBaseMac "${CMAKE_CURRENT_SOURCE_DIR}/Src/01_FFmpegUsingExample/01_FFmpegWithAudioBaseMac.c")
 target_link_libraries(01_01_FFmpegWithAudioBaseMac)
 
