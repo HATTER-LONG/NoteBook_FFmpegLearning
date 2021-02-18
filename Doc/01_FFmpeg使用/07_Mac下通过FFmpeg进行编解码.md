@@ -289,22 +289,22 @@ example:
 
 ffmpeg -vsync 1 -async 1 -i xxx.flv -b:v 200k -maxrate 250k -bufsize 400k -pix_fmt yuv420p -vcodec libx264 -coder 1 -refs 3 -bf 5 -flags +loop -deblock -1:-1 -partitions i4x4+i8x8+p8x8+b8x8 -me_method umh -g 60 -keyint_min 30 -qmin 0 -qmax 69 -qdiff 2 out.mp4
 
--vsync 1 -async 1 -i xxx.flv      视频、音频同步  输入 xxx.flv 文件
--b:v 200k                           控制视频码率为 200k
--maxrate 250k                       最大码流为 250k
--bufsize 400k                       码流相关
--pix_fmt yuv420p                    转换的原始数据格式
--vcodec libx264                     264 编码器
--coder 1                            cabac 熵编码
--refs 3                             参考帧 3
--bf 5                               b 帧最大数量 5
--flags +loop -deblock -1:-1         使用去块化滤波
--partitions i4x4+i8x8+p8x8+b8x8     宏块设置
--me_method umh                      运动估算算法
--g 60                               GOP 60
--keyint_min 30                      最小 GOP 为 30
--qmin 0 -qmax 69                    最小量化 0 最大 69
--qdiff 2                            Qpstep 两帧之间差异量化器
+- `-vsync 1 -async 1 -i xxx.flv`     ： 　视频、音频同步  输入 xxx.flv 文件
+- `-b:v 200k`                        ：   控制视频码率为 200k
+- `-maxrate 250k`                    ：   最大码流为 250k
+- `-bufsize 400k`                    ：   码流相关
+- `-pix_fmt yuv420p`                 ：   转换的原始数据格式
+- `-vcodec libx264`                  ：   264 编码器
+- `-coder 1`                         ：   cabac 熵编码
+- `-refs 3`                          ：   参考帧 3
+- `-bf 5`                            ：   b 帧最大数量 5
+- `-flags +loop -deblock -1:-1`      ：   使用去块化滤波
+- `-partitions i4x4+i8x8+p8x8+b8x8`  ：   宏块设置
+- `-me_method umh`                   ：   运动估算算法
+- `-g 60`                            ：   GOP 60
+- `-keyint_min 30`                   ：   最小 GOP 为 30
+- `-qmin 0 -qmax 69`                 ：   最小量化 0 最大 69
+- `-qdiff 2`                         ：   Qpstep 两帧之间差异量化器
 
 [H264 参数列表](http://www.chaneru.com/Roku/HLS/X264_Settings.htm)
 
