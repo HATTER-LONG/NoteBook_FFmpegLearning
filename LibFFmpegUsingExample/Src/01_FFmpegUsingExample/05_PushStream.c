@@ -3,6 +3,7 @@
 #include <librtmp/rtmp.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 void set_status(int status)
 {
     return;

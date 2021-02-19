@@ -44,7 +44,7 @@ LOG: releasing all the resources
 
 FFmpeg libav 架构流程以及各个组件之间的工作方式如下图:
 
-![decoding](./img/decoding.png)
+![decoding](./Img/decoding.png)
 
 就此工作流程以下分步介绍：
 
@@ -56,7 +56,7 @@ FFmpeg libav 架构流程以及各个组件之间的工作方式如下图:
 
 ### 代码一览
 
-源码位置 TODO
+[参考代码](../../LibFFmpegUsingExample/Src/00_libav_tutoria/00_HelloWorld.cpp)
 
 大致流程如下：
 
