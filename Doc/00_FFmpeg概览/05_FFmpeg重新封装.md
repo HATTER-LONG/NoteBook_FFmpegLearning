@@ -10,15 +10,15 @@ ffmpeg input.mp4 -c copy output.ts
 
 通常 FFmpeg 工作流或者说是 libav 的工作流如下：
 
-* **[协议层](https://ffmpeg.org/doxygen/trunk/protocols_8c.html)** -  接收输入文件（输入也可以是 rtmp 或者 http）
-* **[格式层](https://ffmpeg.org/doxygen/trunk/group__libavf.html)** - 解封装数据内容，暴露出元数据和流信息
-* **[编码层](https://ffmpeg.org/doxygen/trunk/group__libavc.html)** - 解码原数据流 <sup>*可选*</sup>
-* **[像素层](https://ffmpeg.org/doxygen/trunk/group__lavfi.html)** - 可以对原数据做 filters（像改变大小）<sup>*可选*</sup>
+- **[协议层](https://ffmpeg.org/doxygen/trunk/protocols_8c.html)** - 接收输入文件（输入也可以是 rtmp 或者 http）
+- **[格式层](https://ffmpeg.org/doxygen/trunk/group__libavf.html)** - 解封装数据内容，暴露出元数据和流信息
+- **[编码层](https://ffmpeg.org/doxygen/trunk/group__libavc.html)** - 解码原数据流 <sup>_可选_</sup>
+- **[像素层](https://ffmpeg.org/doxygen/trunk/group__lavfi.html)** - 可以对原数据做 filters（像改变大小）<sup>_可选_</sup>
 
-* 然后反过来做相同的操作
-* **[编码层](https://ffmpeg.org/doxygen/trunk/group__libavc.html)** - 编码（重新编码或者转码）原数据帧 <sup>*可选*</sup>
-* **[格式层](https://ffmpeg.org/doxygen/trunk/group__libavf.html)** - 封装（或接封装）原数据流（压缩数据）
-* **[协议层](https://ffmpeg.org/doxygen/trunk/protocols_8c.html)** - 给到相应的 `输出` (文件或者网络数据)
+- 然后反过来做相同的操作
+- **[编码层](https://ffmpeg.org/doxygen/trunk/group__libavc.html)** - 编码（重新编码或者转码）原数据帧 <sup>_可选_</sup>
+- **[格式层](https://ffmpeg.org/doxygen/trunk/group__libavf.html)** - 封装（或接封装）原数据流（压缩数据）
+- **[协议层](https://ffmpeg.org/doxygen/trunk/protocols_8c.html)** - 给到相应的 `输出` (文件或者网络数据)
 
 ![ffmpegWorkflow](../Img/ffmpeg_libav_workflow.png)
 
@@ -197,7 +197,7 @@ Input #0, mpegts, from 'output.ts':
     Stream #0:1[0x101]: Audio: aac (LC) ([15][0][0][0] / 0x000F), 48000 Hz, 6 channels, fltp, 393 kb/s
 ```
 
-总结一下我们在图中所做的事情，我们可以回顾一下 [关于libav如何工作的](./03_FFmpeg库.md#ffmpeg-libav-架)，但我们跳过了编解码器部分。
+总结一下我们在图中所做的事情，我们可以回顾一下 [关于 libav 如何工作的](./03_FFmpeg库.md#ffmpeg-libav-架)，但我们跳过了编解码器部分。
 
 ![remuxing libav components](../Img/remuxing_libav_components.png)
 
@@ -223,7 +223,7 @@ ret = avformat_write_header(output_format_context, &opts);
 make run_remuxing_fragmented_mp4
 ```
 
-为了确保我没有骗你们。你可以一个非常棒的工具 [gpac/mp4box.js](http://download.tsi.telecom-paristech.fr/gpac/mp4box.js/filereader.html)，或者在线工具 [http://mp4parser.com/](http://mp4parser.com/) 去对比差异。
+为了确保我没有骗你们。你可以使用一个非常棒的工具 [gpac/mp4box.js](http://download.tsi.telecom-paristech.fr/gpac/mp4box.js/filereader.html)，或者在线工具 [http://mp4parser.com/](http://mp4parser.com/) 去对比差异。
 
 ![mp4 boxes](../Img/boxes_normal_mp4.png)
 

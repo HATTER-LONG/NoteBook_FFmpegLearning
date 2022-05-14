@@ -62,84 +62,84 @@ FFmpeg libav 架构流程以及各个组件之间的工作方式如下图:
 
 1. 首先为保存获取到的容器 AVFormatContext 分配内存：
 
-    ```cpp
-    AVFormatContext *pFormatContext = avformat_alloc_context();
-    ```
+   ```cpp
+   AVFormatContext *pFormatContext = avformat_alloc_context();
+   ```
 
-2. 我们将打开一个文件，利用 AVFormatContext 来读取文件的头信息。打开文件常用的方法  avformat_open_input。avformat_open_input 需要参数 AVFormatContext，媒体文件和两个参数，如果 AVInputFormat 为 NULL，FFmpeg 将猜测格式。AVDictionary 参数（是一个解封装参数）：
+2. 我们将打开一个文件，利用 AVFormatContext 来读取文件的头信息。打开文件常用的方法 avformat_open_input。avformat_open_input 需要参数 AVFormatContext，媒体文件和两个参数，如果 AVInputFormat 为 NULL，FFmpeg 将猜测格式。AVDictionary 参数（是一个解封装参数）：
 
-    ```cpp
-    avformat_open_input(&pFormatContext, filename, NULL, NULL);
-    ```
+   ```cpp
+   avformat_open_input(&pFormatContext, filename, NULL, NULL);
+   ```
 
 3. 获取到的信息中包括视频格式和时长：
 
-    ```cpp
-    avformat_find_stream_info(pFormatContext,  NULL);
-    ```
+   ```cpp
+   avformat_find_stream_info(pFormatContext,  NULL);
+   ```
 
 4. 为了访问数据流，我们需要从媒体文件中读取数据。函数 avformat_find_stream_info 是做这个的。pFormatContext->nb_streams 将获取所有的流信息，并且通过 pFormatContext->streams[i] 获取到指定的流数据(AVStream)：
 
-    ```cpp
-    avformat_find_stream_info(pFormatContext,  NULL);
-    ```
+   ```cpp
+   avformat_find_stream_info(pFormatContext,  NULL);
+   ```
 
 5. 使用循环来获取所有流数据：
 
-    ```cpp
-    for (int i = 0; i < pFormatContext->nb_streams; i++)
-    {
-    //
-    }
-    ```
+   ```cpp
+   for (int i = 0; i < pFormatContext->nb_streams; i++)
+   {
+   //
+   }
+   ```
 
 6. 每一个流都是 AVCodecParameters 类，这个类描述了流的编码属性：
 
-    ```cpp
-    AVCodecParameters *pLocalCodecParameters = pFormatContext->streams[i]->codecpar;
-    ```
+   ```cpp
+   AVCodecParameters *pLocalCodecParameters = pFormatContext->streams[i]->codecpar;
+   ```
 
-7. 我们通过 avcodec_find_decoder 来查看编码的属性，这个函数不仅能找到codec id，并且会返回 AVCodec类型的变量，这个组件能让我们知道如何去编解码这个流：
+7. 我们通过 avcodec_find_decoder 来查看编码的属性，这个函数不仅能找到 codec id，并且会返回 AVCodec 类型的变量，这个组件能让我们知道如何去编解码这个流：
 
-    ```cpp
-    AVCodec *pLocalCodec = avcodec_find_decoder(pLocalCodecParameters->codec_id);
-    ```
+   ```cpp
+   AVCodec *pLocalCodec = avcodec_find_decoder(pLocalCodecParameters->codec_id);
+   ```
 
 8. 我们现在可以打印一些 codecs 的信息：
 
-    ```cpp
-    // when the stream is a video we store its index, codec parameters and codec
-    if (pLocalCodecParameters->codec_type == AVMEDIA_TYPE_VIDEO)
-    {
-        if (video_stream_index == -1)
-        {
-            video_stream_index = i;
-            pCodec = pLocalCodec;
-            pCodecParameters = pLocalCodecParameters;
-            break;
-        }
+   ```cpp
+   // when the stream is a video we store its index, codec parameters and codec
+   if (pLocalCodecParameters->codec_type == AVMEDIA_TYPE_VIDEO)
+   {
+       if (video_stream_index == -1)
+       {
+           video_stream_index = i;
+           pCodec = pLocalCodec;
+           pCodecParameters = pLocalCodecParameters;
+           break;
+       }
 
-        logging("Video Codec: resolution %d x %d", pLocalCodecParameters->width,
-            pLocalCodecParameters->height);
-    }
-    else if (pLocalCodecParameters->codec_type == AVMEDIA_TYPE_AUDIO)
-    {
-        logging("Audio Codec: %d channels, sample rate %d", pLocalCodecParameters->channels,
-            pLocalCodecParameters->sample_rate);
-    }
+       logging("Video Codec: resolution %d x %d", pLocalCodecParameters->width,
+           pLocalCodecParameters->height);
+   }
+   else if (pLocalCodecParameters->codec_type == AVMEDIA_TYPE_AUDIO)
+   {
+       logging("Audio Codec: %d channels, sample rate %d", pLocalCodecParameters->channels,
+           pLocalCodecParameters->sample_rate);
+   }
 
-    // print its name, id and bitrate
-    logging("\tCodec %s ID %d bit_rate %lld", pLocalCodec->name, pLocalCodec->id,
-        pLocalCodecParameters->bit_rate);
-    ```
+   // print its name, id and bitrate
+   logging("\tCodec %s ID %d bit_rate %lld", pLocalCodec->name, pLocalCodec->id,
+       pLocalCodecParameters->bit_rate);
+   ```
 
 9. 当我们编解码的时候，我们首先要为 AVCodecContext 分配内存，因为我们存放处理解码/编码的内容。 然后我们使用 avcodec_parameters_to_context 来为 AVCodecContext 赋值，当我们完成赋值，我们就可以调用 avcodec_open2 来使用这个变量了：
 
-    ```cpp
-    AVCodecContext *pCodecContext = avcodec_alloc_context3(pCodec);
-    avcodec_parameters_to_context(pCodecContext, pCodecParameters);
-    avcodec_open2(pCodecContext, pCodec, NULL);
-    ```
+   ```cpp
+   AVCodecContext *pCodecContext = avcodec_alloc_context3(pCodec);
+   avcodec_parameters_to_context(pCodecContext, pCodecParameters);
+   avcodec_open2(pCodecContext, pCodec, NULL);
+   ```
 
 10. 首先我们要为 AVPacket 和 AVFrame 来分配内存，然后我们将从流中读取数据包并且解码数据包为帧数据：
 
@@ -183,7 +183,7 @@ FFmpeg libav 架构流程以及各个组件之间的工作方式如下图:
     );
     ```
 
-15. 最后我们可以保存我们解码出来的帧到一个简单的灰色图片。这个处理过程非常简单，我们使用 pFrame->data 查看 planes Y, Cb and Cr 相关数据，但是我们只取0（Y）数据保存为灰色图片。
+15. 最后我们可以保存我们解码出来的帧到一个简单的灰色图片。这个处理过程非常简单，我们使用 pFrame->data 查看 planes Y, Cb and Cr 相关数据，但是我们只取 0（Y）数据保存为灰色图片。
 
     ```cpp
     save_gray_frame(pFrame->data[0], pFrame->linesize[0], pFrame->width, pFrame->height, frame_filename);
@@ -204,6 +204,6 @@ FFmpeg libav 架构流程以及各个组件之间的工作方式如下图:
     }
     ```
 
-现在我们有一张2MB大小的图片：
+现在我们有一张 2MB 大小的图片：
 
 ![graypic](../Img/hello_world_frames/frame0.png)

@@ -8,65 +8,65 @@
 
 ![media transcoding flow](../Img/transcoding_flow.png)
 
-> 快速回顾一下：[**AVFormatContext**](https://www.ffmpeg.org/doxygen/trunk/structAVFormatContext.html) 是媒体文件格式的抽象（例如：MKV，MP4，Webm，TS）。 [**AVStream**](https://www.ffmpeg.org/doxygen/trunk/structAVStream.html) 代表给定格式的数据类型（例如：音频，视频，字幕，元数据）。 [**AVPacket**](https://www.ffmpeg.org/doxygen/trunk/structAVPacket.html) 是从 `AVStream` 获得的压缩数据的切片，可由 [**AVCodec**](https://www.ffmpeg.org/doxygen/trunk/structAVCodec.html)（例如av1，h264，vp9，hevc）解码，从而生成称为 [**AVFrame**](https://www.ffmpeg.org/doxygen/trunk/structAVFrame.html) 的原始数据。
+> 快速回顾一下：[**AVFormatContext**](https://www.ffmpeg.org/doxygen/trunk/structAVFormatContext.html) 是媒体文件格式的抽象（例如：MKV，MP4，Webm，TS）。 [**AVStream**](https://www.ffmpeg.org/doxygen/trunk/structAVStream.html) 代表给定格式的数据类型（例如：音频，视频，字幕，元数据）。 [**AVPacket**](https://www.ffmpeg.org/doxygen/trunk/structAVPacket.html) 是从 `AVStream` 获得的压缩数据的切片，可由 [**AVCodec**](https://www.ffmpeg.org/doxygen/trunk/structAVCodec.html)（例如 av1，h264，vp9，hevc）解码，从而生成称为 [**AVFrame**](https://www.ffmpeg.org/doxygen/trunk/structAVFrame.html) 的原始数据。
 
 ## 转封装
 
 1. 第一步我们需要**加载输入文件**。
 
-    ```cpp
-    // 为 AVFormatContext 分配内存
-    avfc = avformat_alloc_context();
-    // 打开一个输入流并读取头信息
-    avformat_open_input(avfc, in_filename, NULL, NULL);
-    // 获取流信息
-    avformat_find_stream_info(avfc, NULL);
-    ```
+   ```cpp
+   // 为 AVFormatContext 分配内存
+   avfc = avformat_alloc_context();
+   // 打开一个输入流并读取头信息
+   avformat_open_input(avfc, in_filename, NULL, NULL);
+   // 获取流信息
+   avformat_find_stream_info(avfc, NULL);
+   ```
 
 2. 设置解码的操作，我们用 `AVFormatContext` 可以获取到所有的 `AVStream`，以此获得相应的 `AVCodec`，并且创建特定的 `AVCodecContext`，最终我们将打开给定的编码器来做解码的操作。
 
-    > [**AVCodecContext**](https://www.ffmpeg.org/doxygen/trunk/structAVCodecContext.html) 保存有关媒体的数据包括 码率，帧率，采样率，通道，高还有其他。
+   > [**AVCodecContext**](https://www.ffmpeg.org/doxygen/trunk/structAVCodecContext.html) 保存有关媒体的数据包括 码率，帧率，采样率，通道，高还有其他。
 
-    ```cpp
-    for (int i = 0; i < avfc->nb_streams; i++)
-    {
-        AVStream *avs = avfc->streams[i];
-        AVCodec *avc = avcodec_find_decoder(avs->codecpar->codec_id);
-        AVCodecContext *avcc = avcodec_alloc_context3(*avc);
-        avcodec_parameters_to_context(*avcc, avs->codecpar);
-        avcodec_open2(*avcc, *avc, NULL);
-    }
-    ```
+   ```cpp
+   for (int i = 0; i < avfc->nb_streams; i++)
+   {
+       AVStream *avs = avfc->streams[i];
+       AVCodec *avc = avcodec_find_decoder(avs->codecpar->codec_id);
+       AVCodecContext *avcc = avcodec_alloc_context3(*avc);
+       avcodec_parameters_to_context(*avcc, avs->codecpar);
+       avcodec_open2(*avcc, *avc, NULL);
+   }
+   ```
 
 3. 准备输出文件，首先为 `AVFormatContext` 来**分配内存**。并为**每一个流**创建输出格式。为了正确打包流，我们还要从解码器**复制编解码参数**。通过设置 `AV_CODEC_FLAG_GLOBAL_HEADER` 来告诉编码器可以使用这个全局头信息，最终我们保持这些头信息写入到输出文件中。
 
-    ```cpp
-    avformat_alloc_output_context2(&encoder_avfc, NULL, NULL, out_filename);
+   ```cpp
+   avformat_alloc_output_context2(&encoder_avfc, NULL, NULL, out_filename);
 
-    AVStream *avs = avformat_new_stream(encoder_avfc, NULL);
-    avcodec_parameters_copy(avs->codecpar, decoder_avs->codecpar);
+   AVStream *avs = avformat_new_stream(encoder_avfc, NULL);
+   avcodec_parameters_copy(avs->codecpar, decoder_avs->codecpar);
 
-    if (encoder_avfc->oformat->flags & AVFMT_GLOBALHEADER)
-    encoder_avfc->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
+   if (encoder_avfc->oformat->flags & AVFMT_GLOBALHEADER)
+   encoder_avfc->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
 
-    avio_open(&encoder_avfc->pb, encoder->filename, AVIO_FLAG_WRITE);
-    avformat_write_header(encoder->avfc, &muxer_opts);
-    ```
+   avio_open(&encoder_avfc->pb, encoder->filename, AVIO_FLAG_WRITE);
+   avformat_write_header(encoder->avfc, &muxer_opts);
+   ```
 
 4. 我们从解码器获得 `AVPacket`，调整时间戳后写到输出文件。尽管 `av_interleaved_write_frame` 从函数名上来看是 “写入帧信息”，但我们实际存储的是数据包。我们通过写入流的尾部到文件来结束转封装操作。
 
-    ```cpp
-    AVFrame *input_frame = av_frame_alloc();
-    AVPacket *input_packet = av_packet_alloc();
+   ```cpp
+   AVFrame *input_frame = av_frame_alloc();
+   AVPacket *input_packet = av_packet_alloc();
 
-    while (av_read_frame(decoder_avfc, input_packet) >= 0)
-    {
-    av_packet_rescale_ts(input_packet, decoder_video_avs->time_base, encoder_video_avs->time_base);
-    av_interleaved_write_frame(*avfc, input_packet) < 0));
-    }
+   while (av_read_frame(decoder_avfc, input_packet) >= 0)
+   {
+   av_packet_rescale_ts(input_packet, decoder_video_avs->time_base, encoder_video_avs->time_base);
+   av_interleaved_write_frame(*avfc, input_packet) < 0));
+   }
 
-    av_write_trailer(encoder_avfc);
-    ```
+   av_write_trailer(encoder_avfc);
+   ```
 
 ## 转码
 
@@ -117,7 +117,7 @@ avcodec_parameters_from_context(sc->video_avs->codecpar, sc->video_avcc);
 - 发送元数据， [avcodec_send_frame](https://www.ffmpeg.org/doxygen/trunk/group__lavc__decoding.html)。
 - 基于编码器，接受编码数据， `AVPacket`，[avcodec_receive_packet](https://www.ffmpeg.org/doxygen/trunk/group__lavc__decoding.html)。
 - 设置时间戳， [av_packet_rescale_ts](https://www.ffmpeg.org/doxygen/trunk/group__lavc__packet.html)。
-- 写到输出文件  [av_interleaved_write_frame](https://www.ffmpeg.org/doxygen/trunk/group__lavf__encoding.html)。
+- 写到输出文件 [av_interleaved_write_frame](https://www.ffmpeg.org/doxygen/trunk/group__lavf__encoding.html)。
 
 ```cpp
 AVFrame *input_frame = av_frame_alloc();
