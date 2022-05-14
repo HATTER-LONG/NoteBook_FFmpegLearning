@@ -12,12 +12,12 @@
 
 再上一个例子中，我们可以在这看到我们保留了一些帧：
 
-![frame 0](./Img/hello_world_frames/frame0.png)
-![frame 1](./Img/hello_world_frames/frame1.png)
-![frame 2](./Img/hello_world_frames/frame2.png)
-![frame 3](./Img/hello_world_frames/frame3.png)
-![frame 4](./Img/hello_world_frames/frame4.png)
-![frame 5](./Img/hello_world_frames/frame5.png)
+![frame 0](../Img/hello_world_frames/frame0.png)
+![frame 1](../Img/hello_world_frames/frame1.png)
+![frame 2](../Img/hello_world_frames/frame2.png)
+![frame 3](../Img/hello_world_frames/frame3.png)
+![frame 4](../Img/hello_world_frames/frame4.png)
+![frame 5](../Img/hello_world_frames/frame5.png)
 
 当设计一个播放器时，在合适的时间**播放每一帧**很重要，否则音视频不同步会造成很严重的观看体验。
 
@@ -92,7 +92,7 @@ LOG: releasing all the resources
 
 GOP ( Group of Pictures) 是一组连续的画面，由一张 I 帧和数张 B / P 帧组成，是视频图像编码器和解码器存取的基本单位，它的排列顺序将会一直重复到影像结束。I 帧是内部编码帧（也称为关键帧），P帧是前向预测帧（前向参考帧），B 帧是双向内插帧（双向参考帧）。简单地讲，I 帧是一个完整的画面，而 P 帧和 B 帧记录的是相对于 I 帧的变化。如果没有 I 帧，P 帧和 B 帧就无法解码。
 
-![GOP](./Img/GOP.png)
+![GOP](../Img/GOP.png)
 
 ### I 帧、P 帧、B 帧、GOP
 
@@ -129,7 +129,7 @@ GOP ( Group of Pictures) 是一组连续的画面，由一张 I 帧和数张 B /
 
 3. B 帧（Bidirectionally predicted picture 双向预测编码图像帧）：B 帧是双向差别帧，也就是 B 帧记录的是本真与前后帧的差别。换言之，要解码 B 帧，不仅要取得之前的缓存画面，还要解码之后的画面，通过前后画面的与本帧数据的叠加取得最终的画面。B 帧压缩率高，但是解码时 CPU 会比较累。
 
-    ![BFrame](./Img/B_Frame.png)
+    ![BFrame](../Img/B_Frame.png)
 
     - B 帧的预测与重构：
       - B 帧以前面的 I 或 P 帧和后面的 P 帧为参考帧，找到 B 帧某点的预测值和两个运动矢量，并取预测差值和运动矢量传送。接收端根据运动矢量在两个参考帧中“找出(算出)”预测值并与差值求和，得到 B 帧“某点”样值，从而可得到完整的 B 帧。采用运动预测的方式进行帧间双向预测编码。
@@ -143,7 +143,7 @@ GOP ( Group of Pictures) 是一组连续的画面，由一张 I 帧和数张 B /
       - 从上面的看，我们知道 I 和 P 的解码算法比较简单，资源占用也比较少，I 只要自己完成就行了，P 呢，也只需要解码器把前一个画面缓存一下，遇到 P 时就使用之前缓存的画面就好了，如果视频流只有 I 和 P，解码器可以不管后面的数据，边读边解码，线性前进，大家很舒服。那么为什么还要引入 B 帧？
       - 网络上的电影很多都采用了 B 帧，因为 B 帧记录的是前后帧的差别，**比 P 帧能节约更多的空间**。但这样一来，文件小了，解码器就麻烦了，因为在解码时，不仅要用之前缓存的画面，还要知道下一个 I 或者 P 的画面（也就是说要预读预解码），而且， B 帧不能简单地丢掉，因为B帧其实也包含了画面信息，如果简单丢掉，并用之前的画面简单重复，就会造成画面卡（其实就是丢帧了），并且由于网络上的电影为了节约空间，往往使用相当多的 B 帧，B 帧用的多，对不支持 B 帧的播放器就造成更大的困扰，画面也就越卡。
 
-    ![BDec](./Img/B_DEC.png)
+    ![BDec](../Img/B_DEC.png)
 
 4. GOP 序列和 IDR：
    在 H264 中图像以序列为单位进行组织，一个序列是一段图像编码后的数据流。
@@ -164,7 +164,7 @@ P 帧需要参考前边的 I 或 P 帧才可以生成一张完整的图片，而
 
 编码的 I 帧和 P 帧之间的帧被编码为 B 帧。之后，编码器会再次跳过几个帧，使用第一个 P 帧作为基准帧编码另外一个 P 帧，然后再次跳回，用 B 帧填充显示序列中的空隙。这个过程不断继续，每 12 到 15 个 P 帧和 B 帧内插入一个新的 I 帧。P 帧由前一个 I 帧或 P 帧图像来预测，而 B 帧由前后的两个 P 帧或一个 I 帧和一个 P 帧来预测，因而编解码和帧的显示顺序有所不同，如下所示：
 
-![DTS](./Img/DTS.png)
+![DTS](../Img/DTS.png)
 
 假设编码器采集到的帧是这个样子的：
 

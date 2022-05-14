@@ -20,7 +20,7 @@ ffmpeg input.mp4 -c copy output.ts
 * **[格式层](https://ffmpeg.org/doxygen/trunk/group__libavf.html)** - 封装（或接封装）原数据流（压缩数据）
 * **[协议层](https://ffmpeg.org/doxygen/trunk/protocols_8c.html)** - 给到相应的 `输出` (文件或者网络数据)
 
-![ffmpegWorkflow](./Img/ffmpeg_libav_workflow.png)
+![ffmpegWorkflow](../Img/ffmpeg_libav_workflow.png)
 
 可以使用 libav 实现一个命令行操作： `ffmpeg input.mp4 -c copy output.ts`。
 
@@ -199,7 +199,7 @@ Input #0, mpegts, from 'output.ts':
 
 总结一下我们在图中所做的事情，我们可以回顾一下 [关于libav如何工作的](./03_FFmpeg库.md#ffmpeg-libav-架)，但我们跳过了编解码器部分。
 
-![remuxing libav components](./Img/remuxing_libav_components.png)
+![remuxing libav components](../Img/remuxing_libav_components.png)
 
 在我们结束这章之前，我想让大家看看重新封装的过程，你可以将选项传递给封装器。比如我们要分发 [MPEG-DASH](https://developer.mozilla.org/en-US/docs/Web/Apps/Fundamentals/Audio_and_video_delivery/Setting_up_adaptive_streaming_media_sources%23MPEG-DASH_Encoding) 格式的文件，我需要使用 [fragmented mp4](https://stackoverflow.com/questions/35177797/what-exactly-is-fragmented-mp4fmp4-how-is-it-different-from-normal-mp4/35180327#35180327)（有时也叫 fmp4）代替 TS 或者 MPEG-4。
 
@@ -225,8 +225,8 @@ make run_remuxing_fragmented_mp4
 
 为了确保我没有骗你们。你可以一个非常棒的工具 [gpac/mp4box.js](http://download.tsi.telecom-paristech.fr/gpac/mp4box.js/filereader.html)，或者在线工具 [http://mp4parser.com/](http://mp4parser.com/) 去对比差异。
 
-![mp4 boxes](./Img/boxes_normal_mp4.png)
+![mp4 boxes](../Img/boxes_normal_mp4.png)
 
 如你所见， `mdat` atom/box 是**存放音视频帧的地方**。现在我们加载 mp4 分片，看看是如何渲染 `mdat` 的。
 
-![fragmented mp4 boxes](./Img/boxes_fragmente_mp4.png)
+![fragmented mp4 boxes](../Img/boxes_fragmente_mp4.png)

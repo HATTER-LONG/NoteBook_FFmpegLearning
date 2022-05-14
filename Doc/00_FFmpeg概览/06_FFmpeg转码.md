@@ -6,7 +6,7 @@
 
 本章主要实现一个编码器，编码器主要用到 FFmpeg/libav 中的 [libavcodec](https://ffmpeg.org/libavcodec.html)，libavformat 和 libavutil 将视频从 H264 转到 H265。
 
-![media transcoding flow](./Img/transcoding_flow.png)
+![media transcoding flow](../Img/transcoding_flow.png)
 
 > 快速回顾一下：[**AVFormatContext**](https://www.ffmpeg.org/doxygen/trunk/structAVFormatContext.html) 是媒体文件格式的抽象（例如：MKV，MP4，Webm，TS）。 [**AVStream**](https://www.ffmpeg.org/doxygen/trunk/structAVStream.html) 代表给定格式的数据类型（例如：音频，视频，字幕，元数据）。 [**AVPacket**](https://www.ffmpeg.org/doxygen/trunk/structAVPacket.html) 是从 `AVStream` 获得的压缩数据的切片，可由 [**AVCodec**](https://www.ffmpeg.org/doxygen/trunk/structAVCodec.html)（例如av1，h264，vp9，hevc）解码，从而生成称为 [**AVFrame**](https://www.ffmpeg.org/doxygen/trunk/structAVFrame.html) 的原始数据。
 

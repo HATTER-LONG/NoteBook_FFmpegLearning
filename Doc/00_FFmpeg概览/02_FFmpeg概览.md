@@ -64,7 +64,7 @@ ffplay out.wav
 
 ### 转码
 
-![translate](./Img/transcoding.png)
+![translate](../Img/transcoding.png)
 
 转码表示将一个视频流或音频流从一个编码格式转换到另一个格式。
 
@@ -79,11 +79,11 @@ ffmpeg 可以通过以下示例命令进行转码，将 H264(AVC) 转到 H265(HE
 
 ### 转格式（封装）
 
-![transmuxing](./Img/transmuxing.png)
+![transmuxing](../Img/transmuxing.png)
 
 转格式表示将视频从某一个格式（容器）转换成另外一个。
 
-转格式的原因：有时候有些设备（TV，智能手机，游戏机等等）已经不支持 X ，但是支持 Y和一些新的容器提供了更现代的特征。
+转格式的原因：有时候有些设备（TV，智能手机，游戏机等等）已经不支持 X ，但是支持 Y 和一些新的容器提供了更现代的特征。
 
 ffmpeg 可以通过以下示例命令将一个 mp4 转为 webm：
 
@@ -96,7 +96,9 @@ bunny_1080p_60fps.webm
 
 ### 转码率
 
-![transrating](./Img/transrating.png)
+![transrating](../Img/transrating.png)
+
+视频码率：kb/s，是指视频文件在单位时间内使用的数据流量，也叫码流率。码率越大，说明单位时间内取样率越大，数据流精度就越高。
 
 转码率将会改变视频码率。
 
@@ -113,7 +115,7 @@ small_bunny_1080p_60fps_tran_964_2856.mp4
 
 ### 转分辨率
 
-![transsizing](./Img/transsizing.png)
+![transsizing](../Img/transsizing.png)
 
 为了提供不同的分辨率来满足不同的需求，通过转分辨率可以转换不同的分辨率。
 
@@ -128,11 +130,11 @@ small_bunny_1080p_60fps_transsizing_480.mp4
 
 ### 自适应流
 
-![adaptive-streaming](./img/adaptive-streaming.png)
+![adaptive-streaming](../Img/adaptive-streaming.png)
 
 自适应流可以通过生成很多不同分辨率的视频，并且把视频切分成块文件，最终通过 http 来分发不同分辨率的视频块。
 
-主要是为了提供一个更加灵活的观看体验在不同的终端和网络环境，比如用智能手机或者4K电视都能轻松的调整码率观看。
+主要是为了提供一个更加灵活的观看体验在不同的终端和网络环境，比如用智能手机或者 4K 电视都能轻松的调整码率观看。
 
 使用 DASH 创建一个自适应的 WebM。[有关 WebM 自适应使用说明](http://wiki.webmproject.org/adaptive-streaming/instructions-to-playback-adaptive-webm-using-dash)。
 
@@ -163,7 +165,7 @@ $ ffmpeg \
  -f webm_dash_manifest \
  -adaptation_sets "id=0,streams=0,1,2,3,4 id=1,streams=5" \
  manifest.mpd
- ```
+```
 
 ## 超越
 

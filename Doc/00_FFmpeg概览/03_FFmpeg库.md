@@ -44,7 +44,7 @@ LOG: releasing all the resources
 
 FFmpeg libav 架构流程以及各个组件之间的工作方式如下图:
 
-![decoding](./Img/decoding.png)
+![decoding](../Img/decoding.png)
 
 就此工作流程以下分步介绍：
 
@@ -206,4 +206,4 @@ FFmpeg libav 架构流程以及各个组件之间的工作方式如下图:
 
 现在我们有一张2MB大小的图片：
 
-![graypic](./Img/hello_world_frames/frame0.png)
+![graypic](../Img/hello_world_frames/frame0.png)

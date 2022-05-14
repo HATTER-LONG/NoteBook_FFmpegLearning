@@ -20,19 +20,19 @@
 1. H264 Profile：对视频压缩特性的描述，Profile 越高，就说明采用了越高级的压缩特性。
     - Profile 有两个分支，都是基于 CONSTRAINED BASELINE 发展而来。我们用的更多的是 MAIN。
 
-        ![24](./Img/24.png)
+        ![24](../Img/24.png)
 
     - MAIN Profile 之上还有很多等级，详见下图：
   
-        ![25](./Img/25.png)
+        ![25](../Img/25.png)
 
 2. H264 Level：Level 是对视频的描述，Level 越高，视频的码流、分辨率、fps 越高，是对整个视频的规格描述。
 
-    ![26](./Img/26.png)
+    ![26](../Img/26.png)
 
 3. SPS 分辨率参数：下图中是与分辨率有关的属性。
 
-    ![27](./Img/27.png)
+    ![27](../Img/27.png)
 
 4. 帧相关参数：
     - 帧数：log2_max_frame_num_minus4 在一个 GOP 中解码的最大帧数。
@@ -48,7 +48,7 @@
 
 - PPS 比较重要的参数，见下图：
 
-    ![28](./Img/28.png)
+    ![28](../Img/28.png)
 
 ### Slice Header
 
